@@ -10,17 +10,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import es.fpsumma.dam2.api.ui.screen.tareas.DetalleTareaRoomRoute
+import es.fpsumma.dam2.api.ui.screen.tareas.ListadoTareasRemoteRoute
 import es.fpsumma.dam2.api.ui.screen.tareas.ListadoTareasRoomRoute
 import es.fpsumma.dam2.api.ui.screen.tareas.NuevaTareaRoomRoute
+import es.fpsumma.dam2.api.viewmodel.TareasRemoteViewModel
 import es.fpsumma.dam2.api.viewmodel.TareasViewModel
 
 @Composable
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Routes.TAREA_LISTADO
+    startDestination: String = Routes.TAREA_LISTADO_API
 ) {
-    val vm: TareasViewModel = viewModel()
+    val vmRoom: TareasViewModel = viewModel()
+
+    val vmRemote: TareasRemoteViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -28,17 +32,11 @@ fun AppNavHost(
         modifier = modifier
     ) {
         composable(Routes.TAREA_LISTADO) {
-            ListadoTareasRoomRoute(
-                navController = navController,
-                vm = vm
-            )
+            ListadoTareasRoomRoute(navController = navController, vm = vmRoom)
         }
 
         composable(Routes.TAREA_ADD) {
-            NuevaTareaRoomRoute(
-                navController = navController,
-                vm = vm
-            )
+            NuevaTareaRoomRoute(navController = navController, vm = vmRoom)
         }
 
         composable(
@@ -46,11 +44,13 @@ fun AppNavHost(
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
+            DetalleTareaRoomRoute(id = id, navController = navController, vm = vmRoom)
+        }
 
-            DetalleTareaRoomRoute(
-                id = id,
+        composable(Routes.TAREA_LISTADO_API) {
+            ListadoTareasRemoteRoute(
                 navController = navController,
-                vm = vm
+                vm = vmRemote
             )
         }
     }
