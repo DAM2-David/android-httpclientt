@@ -11,4 +11,6 @@ object Routes {
     fun tareaView(id: Int): String {
         return "tareas/detalle/$id"
     }
+
+
 }

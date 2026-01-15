@@ -18,6 +18,7 @@ class TareasRemoteViewModel : ViewModel() {
 
     val state: StateFlow<TareasUIState> = _state
 
+    // Cargar tarea
     fun loadTareas() = viewModelScope.launch {
         _state.update { current ->
             current.copy(loading = true, error = null)
@@ -48,6 +49,20 @@ class TareasRemoteViewModel : ViewModel() {
                     loading = false
                 )
             }
+        }
+    }
+
+    // Borrar una tarea
+    fun deleteTarea(id: Int) = viewModelScope.launch {
+
+        runCatching {
+            val res = api.borrar(id)
+            if (!res.isSuccessful) error("Error borrando: ${res.code()}")
+        }.onSuccess {
+            // Si se ha borrado bien en el servidor, recargamos la lista
+            loadTareas()
+        }.onFailure { e ->
+            _state.update { it.copy(error = e.message ?: "Error al borrar") }
         }
     }
 }
